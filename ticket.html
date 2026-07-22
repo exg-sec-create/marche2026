@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>QRチケット | Life Style Market 2026</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="awning"></div>
+<div class="valance"></div>
+
+<div class="wrap">
+  <div class="section-title"><span>QRチケット 🎟️</span></div>
+  <p class="lead">当日、受付でご提示ください。</p>
+  <div id="box"><p class="lead">読み込み中…</p></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+  firebase.initializeApp(window.firebaseConfig);
+  const db = firebase.firestore();
+  const E = window.EVENT || {};
+  const id = new URLSearchParams(location.search).get("id");
+  const box = document.getElementById("box");
+
+  (async () => {
+    if (!id) { box.innerHTML = '<p class="lead">チケットが指定されていません。</p>'; return; }
+    try {
+      const doc = await db.collection("registrations").doc(id).get();
+      if (!doc.exists) { box.innerHTML = '<p class="lead">チケットが見つかりませんでした。</p>'; return; }
+      const d = doc.data();
+      const url = location.href;
+      box.innerHTML =
+        '<div class="ticket"><div class="top"></div><div class="body">' +
+        '<div class="evt">'+(E.name||"")+' '+(E.year||"")+'</div>' +
+        '<div class="name">'+esc(d.name)+' 様</div>' +
+        '<span class="slot">来場 '+esc(d.slot)+'</span>' +
+        '<div class="qrbox" id="qr"></div>' +
+        '<div class="hint">'+(E.dateLabel||"")+' '+(E.dow||"")+' ・ '+(E.timeLabel||"")+'</div>' +
+        (d.checkedIn ? '<div class="hint" style="color:var(--green);font-weight:800">✓ 受付済みです</div>' : '') +
+        '</div><div class="perf"><span class="notch l"></span><span class="notch r"></span></div>' +
+        '<div class="foot"><div>会場：'+(E.venue||"")+'</div>' +
+        '<div style="margin-top:6px">🅿️ '+(E.parkingNote||"")+'</div></div></div>';
+      new QRCode(document.getElementById("qr"),
+        { text: url, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M });
+    } catch (e) {
+      console.error(e);
+      box.innerHTML = '<p class="lead">読み込みに失敗しました。通信環境をご確認ください。</p>';
+    }
+  })();
+
+  function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+</script>
+</body>
+</html>

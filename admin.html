@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>運営ダッシュボード</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .wrap { max-width: 1080px; }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:4px 0 18px; }
+  .stat { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px; text-align:center; }
+  .stat .n { font-size:1.8rem; font-weight:800; } .stat .l { font-size:.78rem; color:var(--muted); }
+  .slotgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin-bottom:18px; }
+  .slotcard { background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+  .slotcard .s { font-weight:700; font-size:.85rem; } .slotcard .v { font-size:.82rem; color:var(--muted); }
+  .toolbar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .toolbar input { flex:1; min-width:200px; }
+  .toolbar .btn { width:auto; margin:0; padding:12px 16px; box-shadow:none; }
+  table { width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden; box-shadow:var(--shadow); font-size:.9rem; }
+  th,td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); }
+  th { background:#eef5fb; font-size:.78rem; color:var(--muted); } tr:last-child td { border-bottom:none; }
+  .pill { display:inline-block; padding:3px 10px; border-radius:999px; font-size:.78rem; font-weight:700; }
+  .pill.in { background:#e2f5e6; color:#166534; } .pill.out { background:#eef1f4; color:#71808a; }
+  .act { border:1px solid var(--line); background:#fff; border-radius:8px; padding:6px 10px; font-size:.8rem; cursor:pointer; font-family:inherit; }
+  .login { max-width:380px; margin:44px auto; } .login input { margin-bottom:10px; }
+</style>
+</head>
+<body>
+<div class="login card" id="loginBox">
+  <div class="section-title"><span>運営</span></div>
+  <input id="email" type="email" placeholder="メールアドレス" autocomplete="username" />
+  <input id="password" type="password" placeholder="パスワード" autocomplete="current-password" />
+  <div id="loginErr" class="error-box" style="display:none"></div>
+  <button id="loginBtn" class="btn">ログイン</button>
+</div>
+
+<div class="wrap" id="main" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0">
+    <h1 id="title" style="margin:0;color:var(--blue)">来場管理</h1>
+    <button class="act" id="logout">ログアウト</button>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="n" id="sTotal">0</div><div class="l">予約総数</div></div>
+    <div class="stat"><div class="n" id="sIn" style="color:var(--green)">0</div><div class="l">受付済み</div></div>
+    <div class="stat"><div class="n" id="sOut">0</div><div class="l">未受付</div></div>
+  </div>
+  <div class="slotgrid" id="slotGrid"></div>
+  <div class="toolbar">
+    <input id="search" placeholder="名前・電話・メールで検索" />
+    <button class="btn" id="csv">CSVを書き出す</button>
+  </div>
+  <table><thead><tr><th>名前</th><th>時間帯</th><th>電話</th><th>状態</th><th>受付時刻</th><th></th></tr></thead>
+  <tbody id="rows"></tbody></table>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+  firebase.initializeApp(window.firebaseConfig);
+  const auth = firebase.auth(), db = firebase.firestore();
+  const $ = id => document.getElementById(id);
+  const E = window.EVENT || {};
+  let all=[], unsub=null;
+
+  $("loginBtn").onclick = async () => { $("loginErr").style.display="none";
+    try { await auth.signInWithEmailAndPassword($("email").value.trim(), $("password").value); }
+    catch(e){ $("loginErr").textContent="ログインに失敗しました。"; $("loginErr").style.display="block"; } };
+  $("logout").onclick = () => auth.signOut();
+
+  auth.onAuthStateChanged(u => {
+    if (u){ $("loginBox").style.display="none"; $("main").style.display="block";
+      $("title").textContent = (E.name||"")+" "+(E.year||"")+" 来場管理"; listen(); }
+    else { $("loginBox").style.display="block"; $("main").style.display="none"; if(unsub){unsub();unsub=null;} }
+  });
+
+  function listen(){ unsub = db.collection("registrations").orderBy("createdAt","desc")
+    .onSnapshot(s => { all = s.docs.map(d=>({id:d.id,...d.data()})); render(); }, e=>console.error(e)); }
+
+  $("search").addEventListener("input", render);
+  function render(){
+    const q = $("search").value.trim().toLowerCase();
+    const inC = all.filter(r=>r.checkedIn).length;
+    $("sTotal").textContent=all.length; $("sIn").textContent=inC; $("sOut").textContent=all.length-inC;
+    const grid=$("slotGrid"); grid.innerHTML="";
+    (window.TIME_SLOTS||[]).forEach(s=>{ const l=all.filter(r=>r.slot===s); const di=l.filter(r=>r.checkedIn).length;
+      const c=document.createElement("div"); c.className="slotcard";
+      c.innerHTML='<div class="s">'+s+'</div><div class="v">予約 '+l.length+' ・ 受付 '+di+'</div>'; grid.appendChild(c); });
+    const rows = all.filter(r=>!q || [r.name,r.tel,r.email].some(v=>(v||"").toLowerCase().includes(q)));
+    $("rows").innerHTML = rows.map(r=>{
+      const at = r.checkedInAt&&r.checkedInAt.toDate ? fmt(r.checkedInAt.toDate()) : "";
+      const pill = r.checkedIn?'<span class="pill in">受付済</span>':'<span class="pill out">未受付</span>';
+      const btn = r.checkedIn?'<button class="act" data-un="'+r.id+'">受付取消</button>':'<button class="act" data-in="'+r.id+'">手動受付</button>';
+      return '<tr><td>'+esc(r.name)+'</td><td>'+esc(r.slot)+'</td><td>'+esc(r.tel||"")+'</td><td>'+pill+'</td><td>'+at+'</td><td>'+btn+'</td></tr>';
+    }).join("");
+    $("rows").querySelectorAll("[data-in]").forEach(b=>b.onclick=()=>setCheck(b.dataset.in,true));
+    $("rows").querySelectorAll("[data-un]").forEach(b=>b.onclick=()=>setCheck(b.dataset.un,false));
+  }
+  async function setCheck(id,val){ await db.collection("registrations").doc(id).update({
+    checkedIn:val, checkedInAt: val?firebase.firestore.FieldValue.serverTimestamp():null,
+    checkedInBy: val?(auth.currentUser&&auth.currentUser.email):null }); }
+
+  $("csv").onclick = () => {
+    const head=["名前","時間帯","電話","メール","住所","受付","受付時刻"];
+    const lines=[head.join(",")].concat(all.map(r=>[r.name,r.slot,r.tel,r.email,r.address,
+      r.checkedIn?"済":"未", r.checkedInAt&&r.checkedInAt.toDate?fmt(r.checkedInAt.toDate()):""].map(cell).join(",")));
+    const blob=new Blob(["\uFEFF"+lines.join("\n")],{type:"text/csv"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="marche2026_"+Date.now()+".csv"; a.click();
+  };
+  function fmt(d){ return d.toLocaleString("ja-JP",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"}); }
+  function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function cell(s){ s=String(s??""); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
+</script>
+</body>
+</html>

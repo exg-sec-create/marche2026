@@ -1,44 +1,25 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function signedIn() {
-      return request.auth != null && request.auth.token.email is string;
+    match /registrations/{id} {
+      allow create: if isValidNew();
+      allow get:    if true;                    // チケット表示・受付照合（単一取得）
+      allow list:   if isStaff();               // 一覧はスタッフのみ
+      allow update: if isStaff() && onlyCheckin();
+      allow delete: if isStaff();
     }
-
-    function allowedEditor() {
-      return signedIn() && request.auth.token.email in [
-        'y-togashi@ych-exceed.com',
-        'koseki@ych-exceed.com',
-        'yamamoto@ych-exceed.com',
-        'tegawa@ych-exceed.com',
-        'hidetoshi-konno@besto-haus.com',
-        'homma@ych-exceed.com',
-        'teppei-kikuchi@exceed-group.co.jp',
-        'yamagishi@besto-haus.com',
-        'nabeshima@ych-exceed.com',
-        'masaki-hasegawa@besto-haus.com',
-        'hayasaka@ych-exceed.com',
-        'takeuchi_23@besto-haus.com',
-        'senri-ishikawa@exceed-group.co.jp',
-        'matsumoto@ych-exceed.com',
-        'imai@ych-exceed.com',
-        'yasutaka-saito@ych-exceed.com',
-        'sakai@ych-exceed.com'
-      ];
+    function isStaff() { return request.auth != null; }
+    function isValidNew() {
+      let d = request.resource.data;
+      return d.name is string && d.name.size() > 0 && d.name.size() <= 100
+          && d.email is string && d.email.size() <= 200
+          && d.tel is string && d.tel.size() <= 40
+          && d.slot is string && d.slot.size() <= 40
+          && d.checkedIn == false && d.checkedInAt == null;
     }
-
-    match /dashboards/marche2026 {
-      allow read: if true;
-      allow create, update: if allowedEditor()
-        && request.resource.data.updatedBy.email == request.auth.token.email;
-      allow delete: if false;
-
-      match /auditLogs/{logId} {
-        allow read: if allowedEditor();
-        allow create: if allowedEditor()
-          && request.resource.data.changedBy.email == request.auth.token.email;
-        allow update, delete: if false;
-      }
+    function onlyCheckin() {
+      return request.resource.data.diff(resource.data)
+               .affectedKeys().hasOnly(['checkedIn','checkedInAt','checkedInBy']);
     }
   }
 }

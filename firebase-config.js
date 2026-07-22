@@ -1,12 +1,41 @@
-// Firebase Console > Project settings > General > Your apps > Web app の config に置き換えてください。
-// apiKey 等の Firebase Web config は公開情報です。書き込み権限は Firestore Rules で保護します。
-export const firebaseConfig = {
-  apiKey: "REPLACE_WITH_FIREBASE_API_KEY",
-  authDomain: "REPLACE_WITH_PROJECT_ID.firebaseapp.com",
-  projectId: "REPLACE_WITH_PROJECT_ID",
-  storageBucket: "REPLACE_WITH_PROJECT_ID.appspot.com",
-  messagingSenderId: "REPLACE_WITH_MESSAGING_SENDER_ID",
-  appId: "REPLACE_WITH_APP_ID"
+// ============================================================
+//  Firebase 設定（プロジェクト: marche2026-86ab6）
+//  apiKey と appId だけ、Firebaseコンソール →「プロジェクトの設定」→
+//  「マイアプリ」→ ウェブアプリ の値をコピーして貼り替えてください。
+// ============================================================
+window.firebaseConfig = {
+  apiKey: "AIzaSyBwN5IK-S2QDe9IgJ-_vuzBwu5E5DE26VY",                 // ← 要コピー（AIza... で始まる文字列）
+  authDomain: "marche2026-86ab6.firebaseapp.com",
+  projectId: "marche2026-86ab6",
+  storageBucket: "marche2026-86ab6.firebasestorage.app",
+  messagingSenderId: "199292749394",           // = プロジェクト番号
+  appId: "1:199292749394:web:53f78be7ec5fa0b39d818b",                        // ← 要コピー（1:199292749394:web:... ）
 };
 
-export const dashboardDocPath = "dashboards/marche2026";
+// ============================================================
+//  イベント情報（ここを編集すれば表示が変わります）
+// ============================================================
+window.EVENT = {
+  name: "Life Style Market",
+  year: "2026",
+  dateLabel: "2026.9.27",
+  dow: "SUN",
+  timeLabel: "10:00–16:00",
+  venue: "BESTO HAUS 西バイパス店",
+  tagline: "〜 家族で楽しむ つながるマルシェ 〜",
+  // 駐車場のご案内。決まり次第ここを書き換えてpushすれば反映されます。
+  parkingNote: "駐車場は随時ご案内します。詳しくはリーフレット／当日の会場案内をご確認ください。",
+};
+
+// 来場時間帯（1時間刻み）
+window.TIME_SLOTS = [
+  "10:00–11:00",
+  "11:00–12:00",
+  "12:00–13:00",
+  "13:00–14:00",
+  "14:00–15:00",
+  "15:00–16:00",
+];
+
+// 各時間帯の定員（設けない場合は null）。例: 100
+window.SLOT_CAPACITY = null;

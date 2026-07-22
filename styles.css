@@ -1,0 +1,149 @@
+/* =========================================================
+   Life Style Market — ブランドスタイル
+   参照: フライヤー（青白ストライプ天幕 / 黄色ビッグトップ / 多色ロゴ / 紙吹雪）
+   ========================================================= */
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap');
+
+:root {
+  --blue:      #1a5fa8;   /* メインブルー（ロゴ・見出し） */
+  --blue-deep: #17457c;
+  --teal:      #79c6d0;   /* ライトブルー／ティール */
+  --red:       #e8402a;   /* 差し色 赤 */
+  --green:     #7fbb3b;   /* 差し色 緑 */
+  --yellow:    #f5c11d;   /* 天幕・アクセント黄 */
+  --paper:     #f3f8fc;   /* 背景（うっすら青） */
+  --card:      #ffffff;
+  --ink:       #23303a;
+  --muted:     #71808a;
+  --line:      #e2ebf2;
+  --radius:    18px;
+  --shadow:    0 4px 14px rgba(26,95,168,.10), 0 16px 40px rgba(26,95,168,.08);
+  --stripe:    28px;      /* 天幕ストライプ幅 */
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: "M PLUS Rounded 1c", -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+  color: var(--ink);
+  line-height: 1.65;
+  background:
+    radial-gradient(1200px 500px at 50% -220px, #eaf4fd 0, var(--paper) 60%),
+    var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- 天幕の軒（ストライプ＋スカラップ） ---- */
+.awning { height: 34px;
+  background: repeating-linear-gradient(90deg, var(--blue) 0 var(--stripe), #fff var(--stripe) calc(var(--stripe)*2)); }
+.valance { height: 20px;
+  background: repeating-linear-gradient(90deg, var(--blue) 0 var(--stripe), #eef5fb var(--stripe) calc(var(--stripe)*2));
+  -webkit-mask: radial-gradient(circle 15px at 50% 0, #0000 14px, #000 14.5px) repeat-x;
+          mask: radial-gradient(circle 15px at 50% 0, #0000 14px, #000 14.5px) repeat-x;
+  -webkit-mask-size: var(--stripe) 20px; mask-size: var(--stripe) 20px; }
+
+/* ---- レイアウト ---- */
+.wrap { max-width: 600px; margin: 0 auto; padding: 8px 18px 72px; position: relative; }
+
+/* ---- ヒーロー ---- */
+.hero { text-align: center; padding: 18px 0 6px; position: relative; }
+.tent { width: 132px; height: auto; display: block; margin: 6px auto -6px; }
+
+.wordmark { font-weight: 800; letter-spacing: -.01em; line-height: .95;
+  font-size: clamp(2.5rem, 12vw, 3.6rem); margin: 4px 0 2px; }
+.wordmark .c-teal  { color: var(--teal); }
+.wordmark .c-blue  { color: var(--blue); }
+.wordmark .c-red   { color: var(--red); }
+.wordmark .c-green { color: var(--green); }
+.wordmark .yr { display:block; color: var(--blue); font-size: .5em; letter-spacing:.08em; margin-top:2px; }
+
+.tagline { color: var(--blue); font-weight: 700; font-size: 1rem; margin: 6px 0 14px; }
+
+.meta { display: inline-flex; flex-direction: column; gap: 8px; align-items: center; }
+.datebadge { color: var(--teal); font-weight: 800; letter-spacing: .04em;
+  font-size: clamp(1.15rem, 5.5vw, 1.5rem); }
+.datebadge .sun { font-size: .62em; margin: 0 .35em; vertical-align: .12em; }
+.venue { display:inline-flex; align-items:center; gap:8px; background: var(--red); color:#fff;
+  font-weight:700; padding:8px 16px; border-radius: 999px; font-size:.95rem; }
+
+.free { position: absolute; top: 2px; right: -2px; width: 78px; height: 78px; border-radius: 50%;
+  background: var(--red); color: #fff; display: grid; place-content: center; text-align: center;
+  font-weight: 800; line-height: 1.15; font-size: 1.05rem; transform: rotate(9deg);
+  box-shadow: 0 6px 16px rgba(232,64,42,.35); border: 3px solid #fff; }
+
+/* ---- 紙吹雪（装飾・自動生成） ---- */
+.confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.confetti i { position: absolute; width: 10px; height: 10px; border-radius: 2px; opacity: .9; }
+.hero > *:not(.confetti) { position: relative; z-index: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .confetti i { animation: sway 6s ease-in-out infinite; }
+  @keyframes sway { 0%,100%{ transform: translateY(0) rotate(0);} 50%{ transform: translateY(6px) rotate(18deg);} }
+}
+
+/* ---- セクション見出し（リボン風） ---- */
+.section-title { text-align: center; margin: 30px 0 14px; }
+.section-title span { display: inline-block; background: var(--blue); color: #fff; font-weight: 700;
+  padding: 7px 26px; border-radius: 999px; position: relative; }
+.section-title span::before, .section-title span::after {
+  content: ""; position: absolute; top: 50%; width: 22px; height: 2px; background: var(--blue); }
+.section-title span::before { right: 100%; margin-right: 8px; }
+.section-title span::after  { left: 100%;  margin-left: 8px; }
+
+/* ---- カード / フォーム ---- */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 22px; }
+.lead { text-align:center; color: var(--muted); margin: 0 0 18px; }
+
+label { display: block; font-weight: 700; font-size: .92rem; margin: 16px 0 7px; }
+.req::after { content: " *"; color: var(--red); }
+input {
+  width: 100%; padding: 14px 15px; font-size: 16px; color: var(--ink);
+  border: 2px solid var(--line); border-radius: 12px; background: #fff; font-family: inherit; }
+input:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 4px rgba(121,198,208,.28); }
+.hint { font-size: .82rem; color: var(--muted); margin-top: 6px; }
+
+/* 時間帯チップ（チケット風） */
+.chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 10px; }
+.chip { appearance: none; cursor: pointer; font-family: inherit; font-size: .98rem; font-weight: 700;
+  padding: 13px 10px; border: 2px dashed var(--line); border-radius: 12px; background: #fff; color: var(--ink); }
+.chip:hover { border-color: var(--teal); }
+.chip.sel { background: var(--blue); border-color: var(--blue); border-style: solid; color: #fff; }
+.chip.full { opacity: .45; cursor: not-allowed; text-decoration: line-through; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+  margin-top: 24px; padding: 16px 18px; font-size: 1.1rem; font-weight: 800; color: var(--blue-deep);
+  background: var(--yellow); border: none; border-radius: 14px; cursor: pointer; font-family: inherit;
+  box-shadow: 0 5px 0 #d9a70f; }
+.btn:hover { filter: brightness(1.03); }
+.btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #d9a70f; }
+.btn:disabled { opacity: .6; cursor: not-allowed; box-shadow: 0 5px 0 #d9a70f; }
+.btn-ghost { background: #fff; color: var(--blue); border: 2px solid var(--blue); box-shadow: none; }
+.btn-ghost:active { transform: none; box-shadow: none; }
+
+.info { display:flex; gap:10px; background:#f0f8ec; border:1px solid #cfe6bf; color:#3f6b25;
+  padding:12px 14px; border-radius:12px; font-size:.88rem; margin-top:18px; }
+.info b { color:#2f5a17; }
+.error-box { background:#fdecec; border:1px solid #f5c2c2; color:#a12020; padding:12px 14px;
+  border-radius:12px; margin-top:16px; font-size:.9rem; }
+
+/* ---- チケット（半券デザイン） ---- */
+.ticket { position: relative; background: var(--card); border-radius: 18px; box-shadow: var(--shadow);
+  overflow: hidden; border: 1px solid var(--line); }
+.ticket .top { background: repeating-linear-gradient(90deg, var(--blue) 0 var(--stripe), #fff var(--stripe) calc(var(--stripe)*2));
+  height: 12px; }
+.ticket .body { padding: 24px 22px; text-align: center; }
+.ticket .evt { color: var(--blue); font-weight: 800; font-size: 1.15rem; }
+.ticket .name { font-size: 1.5rem; font-weight: 800; margin: 6px 0 2px; }
+.ticket .slot { display:inline-block; margin-top:6px; padding:6px 16px; background: var(--yellow);
+  color: var(--blue-deep); border-radius:999px; font-weight:800; }
+.ticket .qrbox { display:inline-block; background:#fff; padding:14px; border-radius:14px;
+  border:1px solid var(--line); margin:16px 0 8px; }
+.ticket .qrbox canvas, .ticket .qrbox img { display:block; }
+.ticket .perf { position: relative; border-top: 2px dashed var(--line); margin: 4px 0; }
+.ticket .notch { position:absolute; top:50%; width:22px; height:22px; background: var(--paper);
+  border-radius:50%; transform: translateY(-50%); }
+.ticket .notch.l { left:-12px; } .ticket .notch.r { right:-12px; }
+.ticket .foot { padding: 14px 22px 20px; font-size:.82rem; color:var(--muted); text-align:center; }
+
+.pagefoot { text-align:center; color:var(--blue); font-weight:700; margin-top:28px; font-size:.95rem; }
+:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
