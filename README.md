@@ -66,12 +66,12 @@ Source: **Deploy from a branch** → Branch: **main** / **/(root)** → Save。
 
 ### 公開URL
 ```
-https://<あなた>.github.io/marche_project/            ← 受付フォーム
-https://<あなた>.github.io/marche_project/owner.html  ← オーナー様用
-https://<あなた>.github.io/marche_project/general.html ← 一般用
-https://<あなた>.github.io/marche_project/vendor.html ← 業者用
-https://<あなた>.github.io/marche_project/checkin.html ← 受付（スタッフ）
-https://<あなた>.github.io/marche_project/admin.html   ← 運営
+https://exg-sec-create.github.io/marche_project/            ← 受付フォーム
+https://exg-sec-create.github.io/marche_project/owner.html  ← オーナー様用
+https://exg-sec-create.github.io/marche_project/general.html ← 一般用
+https://exg-sec-create.github.io/marche_project/vendor.html ← 業者用
+https://exg-sec-create.github.io/marche_project/checkin.html ← 受付（スタッフ）
+https://exg-sec-create.github.io/marche_project/admin.html   ← 運営
 ```
 カメラ利用（受付）は HTTPS 必須ですが、GitHub Pages は HTTPS なので問題ありません。
 
